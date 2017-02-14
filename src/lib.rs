@@ -1,3 +1,11 @@
+#![feature(custom_derive)]
+#![feature(proc_macro)]
+
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate serde_json;
 extern crate websocket;
 
 use websocket::{
@@ -10,25 +18,22 @@ use websocket::{
 use websocket::message::Type;
 use websocket::header::WebSocketProtocol;
 
-extern crate rustc_serialize;
-use rustc_serialize::json;
-
 use std::collections::BTreeMap;
 use std::str;
 use std::borrow::Borrow;
 
 pub struct Server {}
 
-#[derive(Debug, RustcDecodable)]
+#[derive(Debug, Serialize, Deserialize)]
 struct MethodCall {
     id: u32,
     method: String,
 }
 
-#[derive(Debug, RustcEncodable)]
+#[derive(Debug, Serialize, Deserialize)]
 struct MethodResult {
     id: u32,
-    result: BTreeMap<String, json::Json>,
+    result: BTreeMap<String, serde_json::Value>,
 }
 
 impl Server {
@@ -85,12 +90,12 @@ impl Server {
                     Type::Text => {
                         println!("GOT TEXT {:?}", message);
                         let utf8 = str::from_utf8(message.payload.borrow()).unwrap();
-                        let json: MethodCall = json::decode(&utf8).unwrap();
+                        let json: MethodCall = serde_json::from_str(&utf8).unwrap();
                         println!("json: {:?}", json);
 
                         let response = MethodResult { id: json.id, result: BTreeMap::new() };
                         println!("response: {:?}", response);
-                        sender.send_message(&Message::text(json::encode(&response).unwrap())).unwrap();
+                        sender.send_message(&Message::text(serde_json::to_string(&response).unwrap())).unwrap();
 
                     }
 					_ => unimplemented!()
