@@ -5,3 +5,4 @@ authors = ["Nipunn Koorapati <nipunn@dropbox.com>"]
 
 [dependencies]
 websocket = "0.17.1"
+rustc-serialize = {}
