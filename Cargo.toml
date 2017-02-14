@@ -1,0 +1,7 @@
+[package]
+name = "chromedebug"
+version = "0.1.0"
+authors = ["Nipunn Koorapati <nipunn@dropbox.com>"]
+
+[dependencies]
+websocket = "0.17.1"
